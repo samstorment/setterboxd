@@ -17,6 +17,9 @@
 
 
 <div class="ven">
+
+    <h2>Hannah and Sam's Films</h2>
+
     <div 
         class="slice left"
         class:active={l}
@@ -140,10 +143,18 @@
         position: relative;
         justify-content: center;
         padding: 5rem;
-        --width-side: 300px;
+        --width-side: min(300px, calc(100vw / 4));
         --height-side: calc(var(--width-side) * 100 / 76);
         --width-mid: calc(var(--width-side) * 50 / 76);
         --height-mid: calc(var(--width-mid) * 88 / 50);
+    }
+
+    h2 {
+        position: absolute;
+        top: 2rem;
+        transition: top ease-in-out 200ms;
+        transition-delay: 90ms;
+
     }
 
     svg {
@@ -151,6 +162,11 @@
         height: auto;
         display: flex;
         overflow: hidden;
+    }
+
+    .ven:has(:is(.left, .right) :is(.path:hover, .path:focus-visible)) h2 {
+        top: -2rem;
+        transition-delay: 0ms;
     }
 
     .slice {
@@ -360,11 +376,9 @@
     .slice:has(.path:is(:hover, :focus-visible)) .pop {
         transition-delay: calc((var(--show-all-time) / (var(--n))) * var(--nth));
     }
+    
 
-    @media (max-width: 680px) {
-        .ven {
-            --width-side: calc(100vw / 3);
-        }
+    @media (max-width: 1200px) {
 
         .label span:is(:first-child, :last-child) {
             font-size: .8rem;

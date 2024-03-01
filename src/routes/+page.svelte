@@ -117,14 +117,19 @@
         justify-content: center;
     }
 
+    .panel-left {
+        padding: 3rem 0;
+    }
+
     .sticky-left {
         position: sticky;
-        top: 0;
+        top: 64px;
     }
 
 
+
     .panel-right {
-        padding: 1rem;
+        padding: 5rem 5rem 5rem 2rem;
         max-width: 800px;
         flex: 1;
     }
