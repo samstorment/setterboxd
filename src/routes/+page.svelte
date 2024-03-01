@@ -39,25 +39,33 @@
 </script>
 
 <div id="page">
-    <div class="overlay">
-        <div class="line"></div>
-    </div>
 
-    <h1>Setterboxd</h1>
+    <header>
+        <h1>Setterboxd</h1>
+    </header>
 
-    
-    <Venn left={data.left} right={data.right} bind:l bind:r bind:m />
+    <div class="panels">
 
-    
-    <h2>{films.size()} Films Selected</h2>
-
-    <div class="films">
-        {#each films as f, i (f.id)}
-            <figure animate:flip={{ duration: 200 }} in:receive={{ key: f.id }} out:send={{ key: f.id }}>
-                <figcaption>{f.title} - {f.year}</figcaption>
-                <img src={f.poster} alt={f.title}>
-            </figure>
-        {/each}
+        <div class="panel-left">
+            <div class="sticky-left">
+                <Venn left={data.left} right={data.right} bind:l bind:r bind:m />
+            </div>
+        </div>
+        
+        <div class="panel-right">
+            {#if films.size() > 0}
+                <h2 transition:fly={{ x: 500 }}>{films.size()} Films Selected</h2>
+            {/if}
+            
+            <div class="films">
+                {#each films as f, i (f.id)}
+                    <figure animate:flip={{ duration: 200 }} in:receive={{ key: f.id }} out:send={{ key: f.id }}>
+                        <figcaption>{f.title} - {f.year}</figcaption>
+                        <img src={f.poster} alt={f.title}>
+                    </figure>
+                {/each}
+            </div>
+        </div>
     </div>
 </div>
 
@@ -66,11 +74,13 @@
 
 <style>
     #page {
-        padding: 1rem;
+        position: relative;
+        height: 100%;
+        overflow-x: hidden;
     }
 
-    h1, h2 {
-        text-align: center;
+    header {
+        padding: .5rem 1rem;
     }
 
     h2 {
@@ -78,19 +88,44 @@
     }
 
     .films {
-        display: flex;
-        flex-wrap: wrap;
+        /* display: flex;
+        flex-wrap: wrap; */
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(90px, 100%), 1fr));
         gap: 1rem;
-        max-width: 600px;
         margin: 0 auto;
     }
 
-    .films figcaption {
+    figcaption {
         display: none;
     }
 
-    .films img {
-        max-width: 50px;
+    img {
         border-radius: 4px;
+        transition: scale ease-in-out 200ms;
+    }
+
+    img:hover {
+        scale: 1.25;
+        z-index: 1;
+    }
+
+
+    .panels {
+        display: flex;
+        background: #14181c url(bg.webp) 0 -1px repeat-x;
+        justify-content: center;
+    }
+
+    .sticky-left {
+        position: sticky;
+        top: 0;
+    }
+
+
+    .panel-right {
+        padding: 1rem;
+        max-width: 800px;
+        flex: 1;
     }
 </style>

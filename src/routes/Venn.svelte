@@ -139,7 +139,7 @@
         display: flex;
         position: relative;
         justify-content: center;
-        padding: 5rem 1rem;
+        padding: 5rem;
         --width-side: 300px;
         --height-side: calc(var(--width-side) * 100 / 76);
         --width-mid: calc(var(--width-side) * 50 / 76);
