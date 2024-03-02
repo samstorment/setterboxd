@@ -5,32 +5,37 @@
     import { flip } from 'svelte/animate';
     import { send, receive } from '$lib/transition';
 	import Venn from './Venn.svelte';
+	import Search from './Search.svelte';
 
-    export let data;
+    let left = new UniqueSet<Film>();
+    let right = new UniqueSet<Film>();
+
+    let leftName: string | undefined;
+    let rightName: string | undefined;
 
     let l = false;
     let r = false;
-    let m = true;
+    let m = false;
 
     let films: UniqueSet<Film>;
 
     $: { 
         if (l && r && m) {
-            films = data.left.union(data.right);
+            films = left.union(right);
         } else if (l && r) {
-            films = data.left
-                .union(data.right)
-                .difference(data.left.intersection(data.right));
+            films = left
+                .union(right)
+                .difference(left.intersection(right));
         } else if (l && m) {
-            films = data.left;
+            films = left;
         } else if (r && m) {
-            films = data.right;
+            films = right;
         } else if (r) {
-            films = data.right.difference(data.left);
+            films = right.difference(left);
         } else if (l) {
-            films = data.left.difference(data.right);
+            films = left.difference(right);
         } else if (m) {
-            films = data.right.intersection(data.left);
+            films = right.intersection(left);
         } else {
             films = new UniqueSet();
         }
@@ -48,7 +53,11 @@
 
         <div class="panel-left">
             <div class="sticky-left">
-                <Venn left={data.left} right={data.right} bind:l bind:r bind:m />
+                <div class="searches">
+                    <Search id="l" bind:films={left} bind:name={leftName} />
+                    <Search id="r" bind:films={right} bind:name={rightName} />
+                </div>
+                <Venn {left} {right} {leftName} {rightName} bind:l bind:r bind:m />
             </div>
         </div>
         
@@ -59,9 +68,10 @@
             
             <div class="films">
                 {#each films as f, i (f.id)}
-                    <figure animate:flip={{ duration: 200 }} in:receive={{ key: f.id }} out:send={{ key: f.id }}>
+                    <!-- animate:flip={{ duration: 200 }} in:receive={{ key: f.id }} out:send={{ key: f.id }} -->
+                    <figure>
                         <figcaption>{f.title} - {f.year}</figcaption>
-                        <img src={f.poster} alt={f.title}>
+                        <img src="https://image.tmdb.org/t/p/w200{f.poster}" alt={f.title}>
                     </figure>
                 {/each}
             </div>
@@ -88,8 +98,6 @@
     }
 
     .films {
-        /* display: flex;
-        flex-wrap: wrap; */
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(90px, 100%), 1fr));
         gap: 1rem;
@@ -118,7 +126,7 @@
     }
 
     .panel-left {
-        padding: 3rem 0;
+        padding: 2rem 0;
     }
 
     .sticky-left {
@@ -127,9 +135,15 @@
     }
 
 
+    .searches {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+    }
+
 
     .panel-right {
-        padding: 5rem 5rem 5rem 2rem;
+        padding: 2rem;
         max-width: 800px;
         flex: 1;
     }

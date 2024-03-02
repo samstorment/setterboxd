@@ -6,13 +6,17 @@
     export let left: UniqueSet<Film>;
     export let right: UniqueSet<Film>;
 
+    export let leftName: string | undefined;
+    export let rightName: string | undefined;
+
     export let l: boolean;
     export let r: boolean;
     export let m: boolean;
 
-    let leftOnly = left.difference(right);
-    let rightOnly = right.difference(left);
-    let midOnly = right.intersection(left);
+    $: leftOnly = [...left.difference(right)].filter(f => f.poster);
+    $: rightOnly = [...right.difference(left)].filter(f => f.poster);
+    $: midOnly = [...right.intersection(left)].filter(f => f.poster);
+
 </script>
 
 
@@ -23,9 +27,12 @@
     <div 
         class="slice left"
         class:active={l}
+        data-name="{leftName}"
     >
         <div class="label">
-            <span>Just Hannah</span>
+            {#if leftName}
+                <span>{leftName}</span>
+            {/if}
             <span>{left.difference(right).size()} Films</span>
         </div>
 
@@ -50,9 +57,9 @@
         {#each leftOnly as f, i}
             <div 
                 class="pop"
-                style="--nth: {i}; --n: {leftOnly.size()};"
+                style="--nth: {i}; --n: {leftOnly.length};"
             >
-                <img src={f.poster} alt={f.title}>
+                <img src="https://image.tmdb.org/t/p/w200{f.poster}" alt={f.title}>
             </div>
         {/each}
     </div>
@@ -88,9 +95,9 @@
         {#each midOnly as f, i}
             <div 
                 class="pop"
-                style="--nth: {i}; --n: {midOnly.size()};"
+                style="--nth: {i}; --n: {midOnly.length};"
             >
-                <img src={f.poster} alt={f.title}>
+                <img src="https://image.tmdb.org/t/p/w200{f.poster}" alt={f.title}>
             </div>
         {/each}
     </div>
@@ -98,10 +105,13 @@
     <div 
         class="slice right" 
         class:active={r}
+        data-name="{rightName}"
     >
 
         <div class="label">
-            <span>Just Sam</span>
+            {#if rightName}
+                <span>{rightName}</span>
+            {/if}
             <span>{right.difference(left).size()} Films</span>
         </div>
 
@@ -127,9 +137,9 @@
         {#each rightOnly as f, i}
             <div 
                 class="pop"
-                style="--nth: {i}; --n: {rightOnly.size()};"
+                style="--nth: {i}; --n: {rightOnly.length};"
             >
-                <img src={f.poster} alt={f.title}>
+                <img src="https://image.tmdb.org/t/p/w200{f.poster}" alt={f.title}>
             </div>
         {/each}
     </div>
@@ -143,7 +153,7 @@
         position: relative;
         justify-content: center;
         padding: 5rem;
-        --width-side: min(300px, calc(100vw / 4));
+        --width-side: min(275px, calc(100vw / 4));
         --height-side: calc(var(--width-side) * 100 / 76);
         --width-mid: calc(var(--width-side) * 50 / 76);
         --height-mid: calc(var(--width-mid) * 88 / 50);
@@ -152,8 +162,8 @@
     h2 {
         position: absolute;
         top: 2rem;
-        transition: top ease-in-out 200ms;
-        transition-delay: 90ms;
+        transition: opacity ease-in-out 200ms;
+        transition-delay: 150ms;
 
     }
 
@@ -165,8 +175,8 @@
     }
 
     .ven:has(:is(.left, .right) :is(.path:hover, .path:focus-visible)) h2 {
-        top: -2rem;
         transition-delay: 0ms;
+        opacity: 0;
     }
 
     .slice {
@@ -249,6 +259,7 @@
         flex-direction: column;
         pointer-events: none;
         font-weight: bold;
+        /* background-color: green; */
     }
 
     .label span:first-child {
@@ -260,7 +271,8 @@
     }
     
     .left .label {
-        left: 15%;
+        left: 8px;
+        right: calc(var(--width-side) * 1 / 3 + 8px);
         translate: 0 -50%;
     }
 
@@ -271,7 +283,8 @@
 
     .right .label {
         z-index: 2;
-        right: 15%;
+        right: 8px;
+        left: calc(var(--width-side) * 1 / 3 + 8px);
         translate: 0 -50%;
     }
 
