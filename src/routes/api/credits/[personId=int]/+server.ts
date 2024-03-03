@@ -7,17 +7,8 @@ export async function GET({ params }) {
 
     const res = await api.get<MovieCredits>(`/person/${params.personId}/movie_credits?language=en-US`);
 
-    const films = [...res.cast, ...res.crew].map(f => {
-        const film: Film = {
-            director: '',
-            id: f.id,
-            poster: f.poster_path,
-            title: f.title,
-            year: new Date(f.release_date).getFullYear()
-        }
-
-        return film;
-    });
+    const films = [...res.cast, ...res.crew]
+        .sort((a, b) => b.popularity - a.popularity);
 
     return json(films);
 }

@@ -1,40 +1,42 @@
 <script lang="ts">
 	import type { Film } from "$lib";
+	import type { Credit } from "$lib/movie-types";
 	import type { UniqueSet } from "$lib/set";
+	import { fly } from "svelte/transition";
+	import Search from "./Search.svelte";
 
 
-    export let left: UniqueSet<Film>;
-    export let right: UniqueSet<Film>;
-
-    export let leftName: string | undefined;
-    export let rightName: string | undefined;
+    export let left: UniqueSet<Credit>;
+    export let right: UniqueSet<Credit>;
 
     export let l: boolean;
     export let r: boolean;
     export let m: boolean;
 
-    $: leftOnly = [...left.difference(right)].filter(f => f.poster);
-    $: rightOnly = [...right.difference(left)].filter(f => f.poster);
-    $: midOnly = [...right.intersection(left)].filter(f => f.poster);
+    export let leftName: string | undefined;
+    export let rightName: string | undefined;
+
+    $: leftOnly = [...left.difference(right)].filter(f => f.poster_path);
+    $: rightOnly = [...right.difference(left)].filter(f => f.poster_path);
+    $: midOnly = [...right.intersection(left)].filter(f => f.poster_path);
 
 </script>
 
 
 <div class="ven">
-
-    <h2>Hannah and Sam's Films</h2>
-
     <div 
         class="slice left"
         class:active={l}
-        data-name="{leftName}"
+        class:posters={leftOnly.length > 0}
     >
-        <div class="label">
-            {#if leftName}
-                <span>{leftName}</span>
-            {/if}
-            <span>{left.difference(right).size()} Films</span>
-        </div>
+        {#key leftName}
+            <div class="label" in:fly={{ y: -200 }}>
+                {#if leftName}
+                    <span>{leftName}</span>
+                {/if}
+                <span>{left.difference(right).size()} Films</span>
+            </div>
+        {/key}
 
         <svg 
             version="1.2" 
@@ -59,7 +61,7 @@
                 class="pop"
                 style="--nth: {i}; --n: {leftOnly.length};"
             >
-                <img src="https://image.tmdb.org/t/p/w200{f.poster}" alt={f.title}>
+                <img src="https://image.tmdb.org/t/p/w200{f.poster_path}" alt={f.title}>
             </div>
         {/each}
     </div>
@@ -67,11 +69,12 @@
     <div 
         class="slice mid"
         class:active={m}
+        class:posters={midOnly.length > 0}
     >
 
         <div class="label">
             <span>Shared</span>
-            <span>{left.intersection(right).size()}</span>
+            <span>{left.intersection(right).size()} Films</span>
         </div>
 
         <svg 
@@ -97,7 +100,7 @@
                 class="pop"
                 style="--nth: {i}; --n: {midOnly.length};"
             >
-                <img src="https://image.tmdb.org/t/p/w200{f.poster}" alt={f.title}>
+                <img src="https://image.tmdb.org/t/p/w200{f.poster_path}" alt={f.title}>
             </div>
         {/each}
     </div>
@@ -105,15 +108,18 @@
     <div 
         class="slice right" 
         class:active={r}
+        class:posters={rightOnly.length > 0}
         data-name="{rightName}"
     >
 
-        <div class="label">
-            {#if rightName}
-                <span>{rightName}</span>
-            {/if}
-            <span>{right.difference(left).size()} Films</span>
-        </div>
+        {#key rightName}
+            <div class="label" in:fly={{ y: -200 }}>
+                {#if rightName}
+                    <span>{rightName}</span>
+                {/if}
+                <span>{right.difference(left).size()} Films</span>
+            </div>
+        {/key}
 
         <svg 
             version="1.2" 
@@ -139,10 +145,11 @@
                 class="pop"
                 style="--nth: {i}; --n: {rightOnly.length};"
             >
-                <img src="https://image.tmdb.org/t/p/w200{f.poster}" alt={f.title}>
+                <img src="https://image.tmdb.org/t/p/w200{f.poster_path}" alt={f.title}>
             </div>
         {/each}
     </div>
+
 </div>
 
 
@@ -152,20 +159,14 @@
         display: flex;
         position: relative;
         justify-content: center;
-        padding: 5rem;
+        padding: 2rem 5rem;
+        z-index: 1;
         --width-side: min(275px, calc(100vw / 4));
         --height-side: calc(var(--width-side) * 100 / 76);
         --width-mid: calc(var(--width-side) * 50 / 76);
         --height-mid: calc(var(--width-mid) * 88 / 50);
     }
 
-    h2 {
-        position: absolute;
-        top: 2rem;
-        transition: opacity ease-in-out 200ms;
-        transition-delay: 150ms;
-
-    }
 
     svg {
         width: 100%;
@@ -173,11 +174,13 @@
         display: flex;
         overflow: hidden;
     }
+    
 
-    .ven:has(:is(.left, .right) :is(.path:hover, .path:focus-visible)) h2 {
+/* 
+    .ven:has(:is(.left.posters, .right.posters) :is(.path:hover, .path:focus-visible)) .searches {
         transition-delay: 0ms;
-        opacity: 0;
-    }
+        top: -3.5rem;
+    } */
 
     .slice {
         position: relative;
@@ -260,6 +263,8 @@
         pointer-events: none;
         font-weight: bold;
         /* background-color: green; */
+        z-index: 2;
+
     }
 
     .label span:first-child {
@@ -282,7 +287,6 @@
     }
 
     .right .label {
-        z-index: 2;
         right: 8px;
         left: calc(var(--width-side) * 1 / 3 + 8px);
         translate: 0 -50%;
@@ -331,8 +335,8 @@
         top: 50%;
         translate: -50% -50%;
 
-        --show-all-time: 200ms;
-        transition: translate ease-in-out 200ms, opacity ease-in-out 200ms, inset ease-in-out 200ms;
+        --show-all-time: 100ms;
+        transition: translate linear 200ms, opacity ease-in-out 200ms, inset ease-in-out 200ms;
         transition-delay: calc((var(--show-all-time) / (var(--n))) * (var(--n) - var(--nth)));
 
     }

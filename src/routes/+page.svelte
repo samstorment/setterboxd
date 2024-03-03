@@ -1,23 +1,21 @@
 <script lang="ts">
-    import type { Film } from '$lib';
     import { UniqueSet } from "$lib/set";
-    import { fly, fade } from 'svelte/transition';
-    import { flip } from 'svelte/animate';
-    import { send, receive } from '$lib/transition';
+    import type { Credit } from '$lib/movie-types';
+    import { fade, fly } from 'svelte/transition';
 	import Venn from './Venn.svelte';
-	import Search from './Search.svelte';
+	import Search from "./Search.svelte";
 
-    let left = new UniqueSet<Film>();
-    let right = new UniqueSet<Film>();
-
-    let leftName: string | undefined;
-    let rightName: string | undefined;
+    let left = new UniqueSet<Credit>();
+    let right = new UniqueSet<Credit>();
 
     let l = false;
     let r = false;
     let m = false;
 
-    let films: UniqueSet<Film>;
+    let leftName: string | undefined;
+    let rightName: string | undefined;
+
+    let films: UniqueSet<Credit>;
 
     $: { 
         if (l && r && m) {
@@ -39,42 +37,50 @@
         } else {
             films = new UniqueSet();
         }
-    } 
+    }
 
+    let displayedFilms: Credit[] = [];
+
+    $: {
+        displayedFilms = [...films].sort((a, b) => b.popularity - a.popularity);
+    }
 </script>
 
 <div id="page">
 
     <header>
         <h1>Setterboxd</h1>
+        <p>About</p>
+        <p>Some More</p>
+        <p>Hello World</p>
     </header>
 
     <div class="panels">
 
         <div class="panel-left">
             <div class="sticky-left">
+                <Venn bind:left bind:right bind:l bind:r bind:m bind:leftName bind:rightName />
                 <div class="searches">
-                    <Search id="l" bind:films={left} bind:name={leftName} />
-                    <Search id="r" bind:films={right} bind:name={rightName} />
+                    <Search id="left" bind:films={left} bind:name={leftName} />
+                    <Search id="right" bind:films={right} bind:name={rightName} />
                 </div>
-                <Venn {left} {right} {leftName} {rightName} bind:l bind:r bind:m />
             </div>
         </div>
         
         <div class="panel-right">
+            <h2>{films.size()} Films Selected</h2>
             {#if films.size() > 0}
-                <h2 transition:fly={{ x: 500 }}>{films.size()} Films Selected</h2>
+    
+                <div class="films" transition:fade={{ duration: 300 }}>
+                    {#each displayedFilms as f, i (f.id)}
+                        <!-- animate:flip={{ duration: 200 }} in:receive={{ key: f.id }} out:send={{ key: f.id }} -->
+                        <figure>
+                            <figcaption>{f.title} - {f.release_date}</figcaption>
+                            <img src="https://image.tmdb.org/t/p/w200{f.poster_path}" alt={f.title}>
+                        </figure>
+                    {/each}
+                </div>
             {/if}
-            
-            <div class="films">
-                {#each films as f, i (f.id)}
-                    <!-- animate:flip={{ duration: 200 }} in:receive={{ key: f.id }} out:send={{ key: f.id }} -->
-                    <figure>
-                        <figcaption>{f.title} - {f.year}</figcaption>
-                        <img src="https://image.tmdb.org/t/p/w200{f.poster}" alt={f.title}>
-                    </figure>
-                {/each}
-            </div>
         </div>
     </div>
 </div>
@@ -91,6 +97,18 @@
 
     header {
         padding: .5rem 1rem;
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+    
+    header > * {
+        transition: opacity ease-in-out 250ms;
+
+    }
+
+    :global(#page:has(:is(.left.posters, .right.posters) .path:is(:hover, :focus-visible)) header > *)  {
+        opacity: 0;
     }
 
     h2 {
@@ -126,7 +144,7 @@
     }
 
     .panel-left {
-        padding: 2rem 0;
+        /* padding: 2rem 0; */
     }
 
     .sticky-left {
@@ -134,17 +152,31 @@
         top: 64px;
     }
 
+    .ven-container {
+        padding: 2rem 5rem;
+        z-index: 1;
+    }
 
     .searches {
+        transition: top ease-in-out 200ms;
+        transition-delay: 110ms;
         display: flex;
-        gap: 2rem;
-        justify-content: center;
+        width: calc(100% - 10rem);
+        gap: 1rem;
+        margin: 0 auto;
+        z-index: -1;
     }
+
 
 
     .panel-right {
         padding: 2rem;
-        max-width: 800px;
+        max-width: 1000px;
         flex: 1;
+        height: calc(100vh - 64px);
+        overflow-y: auto;
+        overflow-x: hidden;
     }
+
+
 </style>
