@@ -231,6 +231,7 @@
         border-bottom-left-radius: .5rem;
         border-bottom-right-radius: .5rem;
         transition: max-height ease-in-out 200ms;
+        z-index: 1000;
     }
 
     

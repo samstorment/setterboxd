@@ -394,16 +394,26 @@
     
 
     @media (max-width: 1200px) {
-
         .label span:is(:first-child, :last-child) {
             font-size: .8rem;
+        }
+
+        .ven {
+            --width-side: min(300px, calc(100vw / 2 - 1rem));
+            padding: 2rem 1rem;
+        }
+    }
+
+    @media (max-width: 750px) {
+        .pop {
+            display: none;
         }
     }
 
     @media (max-width: 480px) {
 
-        .label {
+        /* .label {
             display: none;
-        }
+        } */
     }
 </style>

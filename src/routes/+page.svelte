@@ -175,5 +175,22 @@
         overflow-x: hidden;
     }
 
+    @media (max-width: 1200px) {
+        .panels {
+            flex-direction: column;
+        }
+
+        .searches {
+            width: 100%;
+            max-width: 600px;
+            flex-direction: column;
+            padding: 0 1rem;
+        }
+
+        .panel-right {
+            padding: 2rem 1rem;
+            height: auto;
+        }
+    }
 
 </style>
