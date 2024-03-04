@@ -47,15 +47,14 @@
         displayedFilms = [...selected].sort((a, b) => b.popularity - a.popularity);
     }
 
+    $: posterW = displayedFilms.length <= 5 ? 300 : 200;
+
 </script>
 
 <div id="page">
 
     <header>
         <h1>Setterboxd</h1>
-        <p>About</p>
-        <p>Some More</p>
-        <p>Hello World</p>
     </header>
 
     <div class="panels">
@@ -79,7 +78,7 @@
                         <!-- animate:flip={{ duration: 200 }} in:receive={{ key: f.id }} out:send={{ key: f.id }} -->
                         <figure>
                             <figcaption>{f.title} - {f.release_date}</figcaption>
-                            <img src="https://image.tmdb.org/t/p/w200{f.poster_path}" alt={f.title}>
+                            <img src="https://image.tmdb.org/t/p/w{posterW}{f.poster_path}" alt={f.title}>
                         </figure>
                     {/each}
                 </div>
@@ -120,7 +119,7 @@
 
     .films {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(90px, 100%), 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr));
         gap: 1rem;
         margin: 0 auto;
     }
