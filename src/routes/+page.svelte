@@ -185,11 +185,18 @@
             max-width: 600px;
             flex-direction: column;
             padding: 0 1rem;
+            z-index: 1;
         }
 
         .panel-right {
-            padding: 2rem 1rem;
+            padding: 0 1rem 2rem 1rem;
             height: auto;
+        }
+
+        .sticky-left {
+            display: flex;
+            flex-direction: column-reverse;    
+            padding-top: 1rem;
         }
     }
 

@@ -276,6 +276,7 @@
     li {
         border-bottom: 1px solid lightgray;
         padding: .1rem;
+        background-color: white;
     }
 
     li:hover {
@@ -371,5 +372,13 @@
 
     .selected .text {
         margin-left: .5rem;
+    }
+
+    @media (max-width: 1200px) {
+        form:focus-within .results:has(:is(div, li)) {
+            min-height: 100px;
+            background-color: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+        }
     }
 </style>
