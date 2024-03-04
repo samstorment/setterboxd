@@ -15,6 +15,8 @@
     let form: HTMLFormElement;
     let selected: HTMLButtonElement;
 
+    let loading = false;
+
     let timeout = 0;
 
     let q = "";
@@ -23,9 +25,12 @@
     let searching = false;
 
     async function onSubmit() {
+
         clearTimeout(timeout);
         const res = await fetch(`/api/search/person?q=${q}`);
         search = await res.json();
+
+        loading = false;
     }
 
     async function onResultClick(p: Person) {
@@ -46,27 +51,25 @@
         params.set(id, p.id.toString());
         await goto("?" + params.toString(), { replaceState: true });
 
-        await tick();
         selected.focus();
     }
 
-
     function onChange() {
+
+        loading = true;
+        search = emptyPersonSearch;
 
         clearTimeout(timeout);
 
-        if (q === '') {
-            search = emptyPersonSearch;
-            return;
-        }
+        if (q === '') return loading = false;
 
-        timeout = setTimeout(onSubmit, 500);
+        timeout = setTimeout(onSubmit, 250);
     }
 
     async function onSelectedClick() {
         searching = true; 
         q = '';
-        await tick(); 
+        await tick();
         input.focus();
     }
 
@@ -82,6 +85,8 @@
         const params = $page.url.searchParams;
         params.delete(id);
         await goto("?" + params.toString(), { replaceState: true });
+
+        input.focus();
     }
 </script>
 
@@ -105,21 +110,26 @@
                 type="search" name="q" {id} required autocomplete="off" 
                 bind:value={q} on:input={onChange} bind:this={input}
             >
-            <ul class="results" inert={search.results.length === 0}>
-                {#each search.results as p}
-                    <li>
-                        <button on:click={() => onResultClick(p)} type="button">
-                            {#if p.profile_path}
+            <div class="results" inert={search.results.length === 0}>
+                {#if loading}
+                    <div class="loading">Loading</div>
+                {/if}
+                <ul>
+                    {#each search.results as p}
+                        <li>
+                            <button on:click={() => onResultClick(p)} type="button">
+                                {#if p.profile_path}
                                 <img src="https://image.tmdb.org/t/p/w200{p.profile_path}" alt="{p.name}">
-                            {/if}
-                            <div class="text">
-                                <div>{p.name}</div>
-                                <div class="small">{p.known_for_department}</div>
-                            </div>
-                        </button>
-                    </li>
-                {/each}
-            </ul>
+                                {/if}
+                                <div class="text">
+                                    <div>{p.name}</div>
+                                    <div class="small">{p.known_for_department}</div>
+                                </div>
+                            </button>
+                        </li>
+                    {/each}
+                </ul>
+            </div>
         </form>
     {/if}
 </div>
@@ -138,14 +148,13 @@
         width: 100%;
 
     }
-
+ 
     .results {
         max-height: 0;
         position: absolute;
         top: calc(100% - 4px);
         width: 100%;
         background-color: white;
-        list-style-type: none;
         padding: 0;
         overflow: auto;
         border-bottom-left-radius: .5rem;
@@ -153,8 +162,14 @@
         transition: max-height ease-in-out 200ms;
     }
 
-    .results:not(:has(li)) {
-        user-select: none;
+    .loading {
+        color: gray;
+        padding: .5rem;
+    }
+
+    .results ul {
+        list-style-type: none;
+        padding: 0;
     }
 
     form:focus-within .results {

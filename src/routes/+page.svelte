@@ -15,7 +15,7 @@
 
     let l = false;
     let r = false;
-    let m = false;
+    let m = true;
 
     let selected: UniqueSet<Credit>;
 
