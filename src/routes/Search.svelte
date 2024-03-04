@@ -1,14 +1,15 @@
 <script lang="ts">
-	import { emptyPersonSearch, type Film } from "$lib";
-	import type { Credit, Media, Person, PersonSearch } from "$lib/movie-types";
+	import { emptyPersonSearch, type Side } from "$lib";
+	import type { Credit, Person } from "$lib/movie-types";
 	import { UniqueSet } from "$lib/set";
-    import { slide, scale, fade, fly } from 'svelte/transition';
 	import { tick } from "svelte";
     import { outsideClick } from '$lib/actions/outside-click';
+	import { page } from "$app/stores";
+    import { goto } from "$app/navigation";
+
+    export let side: Side;
 
     export let id: 'left' | 'right';
-    export let films: UniqueSet<Credit>;
-    export let name: string | undefined;
 
     let input: HTMLInputElement;
     let form: HTMLFormElement;
@@ -18,29 +19,37 @@
 
     let q = "";
 
-    let person: Person | undefined;
-
     let search = emptyPersonSearch;
     let searching = false;
 
     async function onSubmit() {
-        console.log('submitted');
         clearTimeout(timeout);
         const res = await fetch(`/api/search/person?q=${q}`);
         search = await res.json();
     }
 
     async function onResultClick(p: Person) {
+        if (p.id === side.person?.id) {
+            searching = false;
+            return;
+        };
+
         const res = await fetch(`/api/credits/${p.id}`);
-        const creditList: Credit[] = await res.json();
-        person = p;
+        const credits: Credit[] = await res.json();
+
         q = p.name;
-        name = p.name;
-        films = new UniqueSet(...creditList);
         searching = false;
+
+        side = { person: p, credits: new UniqueSet(...credits) };
+        
+        const params = $page.url.searchParams;
+        params.set(id, p.id.toString());
+        await goto("?" + params.toString(), { replaceState: true });
+
         await tick();
         selected.focus();
     }
+
 
     function onChange() {
 
@@ -56,34 +65,36 @@
 
     async function onSelectedClick() {
         searching = true; 
+        q = '';
         await tick(); 
         input.focus();
     }
 
     function onFormOutsideClick() {
         searching = false;
-        q = person?.name ?? '';
     }
 
-    function onDeselect() {
-        person = undefined;
-        name = undefined;
+    async function onDeselect() {
+        side = { person: undefined, credits: new UniqueSet() };
         q = '';
-        films = new UniqueSet();
         search = emptyPersonSearch;
+
+        const params = $page.url.searchParams;
+        params.delete(id);
+        await goto("?" + params.toString(), { replaceState: true });
     }
 </script>
 
 <div class="search">
-    {#if person && !searching}
+    {#if side.person && !searching}
         <div class="selected">
             <button type="button" class="person" on:click={onSelectedClick} bind:this={selected}>
-                {#if person.profile_path}
-                <img src="https://image.tmdb.org/t/p/w200{person.profile_path}" alt="{person.name}">
+                {#if side.person.profile_path}
+                    <img src="https://image.tmdb.org/t/p/w200{side.person.profile_path}" alt="{side.person.name}">
                 {/if}
                 <div class="text">
-                    <div>{person.name}</div>
-                    <div class="small">{person.known_for_department}</div>
+                    <div>{side.person.name}</div>
+                    <div class="small">{side.person.known_for_department}</div>
                 </div>
             </button>
             <button class="deselect" on:click={onDeselect}>&times;</button>
@@ -94,7 +105,7 @@
                 type="search" name="q" {id} required autocomplete="off" 
                 bind:value={q} on:input={onChange} bind:this={input}
             >
-            <ul class="results">
+            <ul class="results" inert={search.results.length === 0}>
                 {#each search.results as p}
                     <li>
                         <button on:click={() => onResultClick(p)} type="button">
@@ -142,6 +153,10 @@
         transition: max-height ease-in-out 200ms;
     }
 
+    .results:not(:has(li)) {
+        user-select: none;
+    }
+
     form:focus-within .results {
         display: block;
         max-height: 300px;
@@ -158,9 +173,10 @@
 
     input {
         height: 50px;
-        padding: 1rem;
+        padding: .75rem;
         border: none;
         border-radius: .25rem;
+        font-size: 1.2rem;
         outline: none;
     }
     
@@ -173,9 +189,6 @@
         background-color: rgb(231, 231, 231);
     }
 
-    li:not(:has(img)) {
-        padding: .5rem;
-    }
 
     ul button {
         padding: .1rem;
@@ -188,7 +201,9 @@
         cursor: pointer;
     }
 
-
+    ul button:not(:has(img)) {
+        padding: .5rem;
+    }
 
     img {
         max-width: 40px;

@@ -1,25 +1,23 @@
 <script lang="ts">
-	import type { Film } from "$lib";
-	import type { Credit } from "$lib/movie-types";
-	import type { UniqueSet } from "$lib/set";
 	import { fly } from "svelte/transition";
-	import Search from "./Search.svelte";
+	import type { PageData } from "./$types";
+	import type { Venn } from "$lib";
 
-
-    export let left: UniqueSet<Credit>;
-    export let right: UniqueSet<Credit>;
+    export let venn: Venn;
 
     export let l: boolean;
     export let r: boolean;
     export let m: boolean;
 
-    export let leftName: string | undefined;
-    export let rightName: string | undefined;
+    $: left = venn.left.credits;
+    $: right = venn.right.credits;
+
+    $: leftName = venn.left.person?.name;
+    $: rightName = venn.right.person?.name;
 
     $: leftOnly = [...left.difference(right)].filter(f => f.poster_path);
     $: rightOnly = [...right.difference(left)].filter(f => f.poster_path);
     $: midOnly = [...right.intersection(left)].filter(f => f.poster_path);
-
 </script>
 
 

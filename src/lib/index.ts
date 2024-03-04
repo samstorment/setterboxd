@@ -1,4 +1,5 @@
-import type { PersonSearch } from "./movie-types";
+import type { Credit, Person, PersonSearch } from "./movie-types";
+import type { UniqueSet } from "./set";
 
 export interface Film {
     id: ReturnType<typeof crypto.randomUUID> | number;
@@ -8,10 +9,19 @@ export interface Film {
     poster?: string | null;
 } 
 
-export interface VenData {
-    left: Film[],
-    right: Film[]
-}
 
 
 export const emptyPersonSearch: PersonSearch = { page: 1, results: [], total_pages: 1, total_results: 0 };
+
+
+
+export interface Venn {
+    left: Side;
+    right: Side;
+}
+
+export interface Side {
+    person?: Person;
+    credits: UniqueSet<Credit>;
+}
+

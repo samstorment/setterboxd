@@ -4,46 +4,49 @@
     import { fade, fly } from 'svelte/transition';
 	import Venn from './Venn.svelte';
 	import Search from "./Search.svelte";
+	import { page } from "$app/stores";
+    import { goto } from "$app/navigation";
+    import { browser } from "$app/environment";
 
-    let left = new UniqueSet<Credit>();
-    let right = new UniqueSet<Credit>();
+    export let data;
+
+    $: left = data.left.credits;
+    $: right = data.right.credits;
 
     let l = false;
     let r = false;
     let m = false;
 
-    let leftName: string | undefined;
-    let rightName: string | undefined;
-
-    let films: UniqueSet<Credit>;
+    let selected: UniqueSet<Credit>;
 
     $: { 
         if (l && r && m) {
-            films = left.union(right);
+            selected = left.union(right);
         } else if (l && r) {
-            films = left
+            selected = left
                 .union(right)
                 .difference(left.intersection(right));
         } else if (l && m) {
-            films = left;
+            selected = left;
         } else if (r && m) {
-            films = right;
+            selected = right;
         } else if (r) {
-            films = right.difference(left);
+            selected = right.difference(left);
         } else if (l) {
-            films = left.difference(right);
+            selected = left.difference(right);
         } else if (m) {
-            films = right.intersection(left);
+            selected = right.intersection(left);
         } else {
-            films = new UniqueSet();
+            selected = new UniqueSet();
         }
     }
 
     let displayedFilms: Credit[] = [];
 
     $: {
-        displayedFilms = [...films].sort((a, b) => b.popularity - a.popularity);
+        displayedFilms = [...selected].sort((a, b) => b.popularity - a.popularity);
     }
+
 </script>
 
 <div id="page">
@@ -59,17 +62,17 @@
 
         <div class="panel-left">
             <div class="sticky-left">
-                <Venn bind:left bind:right bind:l bind:r bind:m bind:leftName bind:rightName />
+                <Venn bind:venn={data} bind:l bind:r bind:m />
                 <div class="searches">
-                    <Search id="left" bind:films={left} bind:name={leftName} />
-                    <Search id="right" bind:films={right} bind:name={rightName} />
+                    <Search id="left" bind:side={data.left} />
+                    <Search id="right" bind:side={data.right} />
                 </div>
             </div>
         </div>
         
         <div class="panel-right">
-            <h2>{films.size()} Films Selected</h2>
-            {#if films.size() > 0}
+            <h2>{selected.size()} Films Selected</h2>
+            {#if selected.size() > 0}
     
                 <div class="films" transition:fade={{ duration: 300 }}>
                     {#each displayedFilms as f, i (f.id)}
@@ -150,11 +153,6 @@
     .sticky-left {
         position: sticky;
         top: 64px;
-    }
-
-    .ven-container {
-        padding: 2rem 5rem;
-        z-index: 1;
     }
 
     .searches {
