@@ -86,9 +86,9 @@
         searching = false;
     }
 
-    function onInputFocus() {
+    async function onInputFocus() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         selectedIndex = -1;
-        document.querySelector("#left")?.scrollIntoView({ behavior: "smooth" });
     }
 
     async function onDeselect() {
@@ -215,9 +215,6 @@
         --clr-bg: white;
     }
 
-    #left {
-        scroll-margin-top: 1rem;
-    }
 
     form {
         display: flex;

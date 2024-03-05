@@ -94,7 +94,6 @@
     #page {
         position: relative;
         height: 100%;
-        overflow-x: hidden;
     }
 
     header {
@@ -173,6 +172,10 @@
     }
 
     @media (max-width: 1200px) {
+        h1 {
+            font-size: 1.5rem;
+        }
+
         .panels {
             flex-direction: column;
         }
