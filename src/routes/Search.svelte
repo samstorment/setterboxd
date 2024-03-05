@@ -2,7 +2,7 @@
 	import { emptyPersonSearch, type Side } from "$lib";
 	import type { Credit, Person } from "$lib/movie-types";
 	import { UniqueSet } from "$lib/set";
-	import { tick } from "svelte";
+	import { onMount, tick } from "svelte";
     import { outsideClick } from '$lib/actions/outside-click';
 	import { page } from "$app/stores";
     import { goto } from "$app/navigation";
@@ -26,7 +26,6 @@
 
     let search = emptyPersonSearch;
     let searching = false;
-
 
     $: if (search.results) {
         selectedIndex = -1;
@@ -85,6 +84,11 @@
 
     function onFormOutsideClick() {
         searching = false;
+    }
+
+    function onInputFocus() {
+        selectedIndex = -1;
+        document.querySelector("#left")?.scrollIntoView({ behavior: "smooth" });
     }
 
     async function onDeselect() {
@@ -158,7 +162,7 @@
 
 </script>
 
-<div class="search">
+<div class="search {id}">
     {#if side.person && !searching}
         <div class="selected">
             <button type="button" class="person" on:click={onSelectedClick} bind:this={person} on:keydown={handleKeyboard}>
@@ -179,16 +183,16 @@
                 type="search" name="q" {id} autocomplete="off" 
                 bind:value={q} on:input={onChange} bind:this={input} 
                 on:keydown={handleKeyboard}
-                on:focus={() => selectedIndex = -1}
+                on:focus={onInputFocus}
             >
             <div class="results" inert={search.results.length === 0} tabindex="-1" on:keydown={handleKeyboard} role="list" bind:this={results}>
                 {#if loading}
                     <div class="loading">Loading</div>
                 {/if}
                 <ul>
-                    {#each search.results as p}
+                    {#each search.results as p, i}
                         <li>
-                            <button on:click={() => onResultClick(p)} type="button" tabindex="-1">
+                            <button on:click={() => onResultClick(p)} type="button" tabindex="-1" on:focus={() => selectedIndex = i}>
                                 {#if p.profile_path}
                                 <img src="https://image.tmdb.org/t/p/w200{p.profile_path}" alt="{p.name}">
                                 {/if}
@@ -208,6 +212,11 @@
 <style>
     .search {
         flex: 1;
+        --clr-bg: white;
+    }
+
+    #left {
+        scroll-margin-top: 1rem;
     }
 
     form {
@@ -217,28 +226,30 @@
         margin: 0 auto;
         position: relative;
         width: 100%;
-
     }
  
     .results {
         max-height: 0;
         position: absolute;
-        top: calc(100% - 4px);
+        top: calc(100% - .25rem);
         width: 100%;
-        background-color: white;
+        filter: drop-shadow(10px);
         padding: 0;
         overflow: auto;
         border-bottom-left-radius: .5rem;
         border-bottom-right-radius: .5rem;
         transition: max-height ease-in-out 200ms;
         z-index: 1000;
+        background-color: var(--clr-bg);
     }
 
     
     form:focus-within .results {
         display: block;
         max-height: 300px;
+        box-shadow: 0px .5rem .5rem -.5rem black;
     }
+
     
     form:focus-within .results::before {
         content: '';
@@ -250,8 +261,8 @@
     }
 
     .loading {
-        color: gray;
-        padding: .5rem;
+        color: dimgray;
+        padding: .75rem .5rem;
     }
 
     .results ul {
@@ -267,6 +278,7 @@
         border-radius: .25rem;
         font-size: 1.2rem;
         outline: none;
+        background-color: var(--clr-bg);
     }
 
     input:focus-within {
@@ -276,7 +288,10 @@
     li {
         border-bottom: 1px solid lightgray;
         padding: .1rem;
-        background-color: white;
+    }
+
+    li:last-child {
+        border-bottom: none;
     }
 
     li:hover {
@@ -330,7 +345,6 @@
 
     .selected {
         position: relative;
-        /* overflow: hidden; */
         border-radius: .25rem;
     }
     
@@ -344,6 +358,8 @@
         padding: .2rem;
         height: 50px;
         border-radius: .25rem;
+        background-color: var(--clr-bg);
+
     }
 
     button.person:focus-within {
@@ -362,6 +378,7 @@
         border: none;
         color: dimgray;
         outline: none;
+        background-color: inherit;
         border-radius: .25rem;
     }
 
@@ -374,11 +391,9 @@
         margin-left: .5rem;
     }
 
-    @media (max-width: 1200px) {
-        form:focus-within .results:has(:is(div, li)) {
-            min-height: 100px;
-            background-color: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(10px);
+    @media (max-width: 600px) {
+        form:focus-within .results {
+            max-height: 220px;
         }
     }
 </style>

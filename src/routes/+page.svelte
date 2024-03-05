@@ -145,9 +145,6 @@
         justify-content: center;
     }
 
-    .panel-left {
-        /* padding: 2rem 0; */
-    }
 
     .sticky-left {
         position: sticky;
@@ -180,14 +177,6 @@
             flex-direction: column;
         }
 
-        .searches {
-            width: 100%;
-            max-width: 600px;
-            flex-direction: column;
-            padding: 0 1rem;
-            z-index: 1;
-        }
-
         .panel-right {
             padding: 0 1rem 2rem 1rem;
             height: auto;
@@ -197,6 +186,19 @@
             display: flex;
             flex-direction: column-reverse;    
             padding-top: 1rem;
+        }
+
+        
+        .searches {
+            width: 100%;
+            max-width: 600px;
+            flex-direction: column;
+            padding: 0 1rem;
+            z-index: 1;
+        }
+
+        :global(.searches:has(.left :is(.loading, li)) .right) {
+            opacity: .25;
         }
     }
 

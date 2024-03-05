@@ -402,13 +402,15 @@
             --width-side: min(300px, calc(100vw / 2 - 1rem));
             padding: 2rem 1rem;
         }
-    }
 
-    @media (max-width: 750px) {
         .pop {
-            display: none;
+            /* display: none; */
+            --pop-size: 20px;
+            --radius: calc(var(--height-side) / 2);
+
         }
     }
+
 
     @media (max-width: 480px) {
 
