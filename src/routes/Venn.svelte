@@ -262,7 +262,6 @@
         font-weight: bold;
         /* background-color: green; */
         z-index: 2;
-
     }
 
     .label span:first-child {
