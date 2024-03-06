@@ -140,7 +140,7 @@
 
     .panels {
         display: flex;
-        background: #14181c url(bg.webp) 0 -1px repeat-x;
+        background: #14181c url(/bg.webp) 0 -1px repeat-x;
         justify-content: center;
     }
 
