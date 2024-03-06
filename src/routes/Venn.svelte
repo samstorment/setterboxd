@@ -404,10 +404,9 @@
         }
 
         .pop {
-            /* display: none; */
-            --pop-size: 20px;
-            --radius: calc(var(--height-side) / 2);
-
+            display: none;
+            /* --pop-size: 20px;
+            --radius: calc(var(--height-side) / 2); */
         }
     }
 
