@@ -1,7 +1,7 @@
 <script lang="ts">
     export let title = "Setterboxd";
     export let description = "Compare the movies of any actor, director, or other film contributor.";
-    export let image = "/logo";
+    export let image = "/logo.png";
     export let url = "https://setterboxd.vercel.app/";
 </script>
 
