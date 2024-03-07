@@ -12,7 +12,7 @@ export async function GET({ url }) {
         return json(emptyResult);
     }
 
-    const res = await api.get<PersonSearch>(`/search/person?query=${q}&include_adult=true&language=en-US&page=1`);
+    const res = await api.get<PersonSearch>(`/search/person?query=${q}&include_adult=false&language=en-US&page=1`);
 
     res.results = res.results.sort((a, b) => b.popularity - a.popularity);
 
